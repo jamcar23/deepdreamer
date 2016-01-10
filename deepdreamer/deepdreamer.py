@@ -21,24 +21,12 @@ logging.basicConfig(
     level=logging.NOTSET)
 
 
-def _select_network(netname):
-    if netname == 'bvlc_googlenet':
-        NET_FN = "deploy.prototxt"  # Make sure force_backward: true
-        PARAM_FN = "bvlc_googlenet.caffemodel"
-        CHANNEL_SWAP = (2, 1, 0)
-        # ImageNet mean, training set dependent
-        CAFFE_MEAN = np.float32([104.0, 116.0, 122.0])
-        return NET_FN, PARAM_FN, CHANNEL_SWAP, CAFFE_MEAN
-    elif netname == 'googlenet_place205':
-        # TODO: refit SWAP and MEAN for places205? These work for now.
-        NET_FN = "deploy_places205.protxt"  # Make sure force_backward: true
-        PARAM_FN = "googlelet_places205_train_iter_2400000.caffemodel"
-        CHANNEL_SWAP = (2, 1, 0)
-        # ImageNet mean, training set dependent
-        CAFFE_MEAN = np.float32([104.0, 116.0, 122.0])
-        return NET_FN, PARAM_FN, CHANNEL_SWAP, CAFFE_MEAN
-    else:
-        print("Error: network {} not implemented".format(netname))
+def _select_network(netname, loc):
+    CHANNEL_SWAP = (2, 1, 0)
+    # ImageNet mean, training set dependent
+    CAFFE_MEAN = np.float32([104.0, 116.0, 122.0])
+
+    return loc + "deploy.prototxt", loc + netname, CHANNEL_SWAP, CAFFE_MEAN
 
 
 def _preprocess(net, img):
@@ -147,7 +135,7 @@ def list_layers(network="bvlc_googlenet"):
 def deepdream(
         img_path, zoom=True, scale_coefficient=0.05, irange=100, iter_n=10,
         octave_n=4, octave_scale=1.4, end="inception_4c/output", clip=True,
-        network="bvlc_googlenet", gif=False, reverse=False, duration=0.1,
+        network="bvlc_googlenet", loc="", gif=False, reverse=False, duration=0.1,
         loop=False, gpu=False, gpuid=0):
     img = np.float32(img_open(img_path))
     s = scale_coefficient
@@ -159,7 +147,7 @@ def deepdream(
         set_mode_gpu()
 
     # Select, load DNN model
-    NET_FN, PARAM_FN, CHANNEL_SWAP, CAFFE_MEAN = _select_network(network)
+    NET_FN, PARAM_FN, CHANNEL_SWAP, CAFFE_MEAN = _select_network(network, loc)
     net = Classifier(
         NET_FN, PARAM_FN, mean=CAFFE_MEAN, channel_swap=CHANNEL_SWAP)
 

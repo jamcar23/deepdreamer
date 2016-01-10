@@ -37,9 +37,12 @@ def main():
             "--clip", choices=["true", "false"], default="true",
             help="clip dreams (default: true)")
         parser.add_argument(
-            "--network", choices=['bvlc_googlenet', 'googlenet_place205'],
+            "--network", type=str,
             default='bvlc_googlenet',
             help="choose the network to use (default: bvlc_googlenet)")
+        parser.add_argument(
+            "--net-location", type=str, default="",
+            help="Location of folder containing the network above") 
         parser.add_argument(
             "--gif", choices=["true", "false"], default="false",
             help="make a gif (default: false)")
@@ -98,7 +101,7 @@ def main():
                 args.image, zoom=zoom, scale_coefficient=args.scale,
                 irange=args.dreams, iter_n=args.itern, octave_n=args.octaves,
                 octave_scale=args.octave_scale, end=args.layers, clip=clip,
-                network=args.network, gif=gif, reverse=reverse,
+                network=args.network, loc=args.net_location, gif=gif, reverse=reverse,
                 duration=args.duration, loop=loop, gpu=gpu, gpuid=args.gpuid)
     except Exception as e:
         print("Error: {}".format(e))
